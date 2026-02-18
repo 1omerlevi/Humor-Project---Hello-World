@@ -4,8 +4,11 @@ import { createClient } from './src/lib/supabase/middleware'
 export async function middleware(request: NextRequest) {
     const { supabase, response } = createClient(request)
 
-    // Protect /items
-    if (request.nextUrl.pathname.startsWith('/items')) {
+    // Protect /items and /captions
+    if (
+        request.nextUrl.pathname.startsWith('/items') ||
+        request.nextUrl.pathname.startsWith('/captions')
+    ) {
         const { data } = await supabase.auth.getUser()
         if (!data.user) {
             const url = request.nextUrl.clone()
@@ -18,5 +21,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/items/:path*'],
+    matcher: ['/items/:path*', '/captions/:path*'],
 }

@@ -14,6 +14,9 @@ export default function Home() {
                     <Link href="/items" style={styles.primaryBtn}>
                         View University Majors →
                     </Link>
+                    <Link href="/captions" style={styles.secondaryBtn}>
+                        Rate Captions →
+                    </Link>
                     <a
                         href="https://supabase.com"
                         target="_blank"

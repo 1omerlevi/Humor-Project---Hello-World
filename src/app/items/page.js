@@ -47,6 +47,9 @@ export default async function MajorsPage({ searchParams }) {
                         <Link href="/" style={styles.navBtn}>
                             ← Home
                         </Link>
+                        <Link href="/captions" style={styles.navBtnSecondary}>
+                            Rate Captions
+                        </Link>
                         <a
                             href="/items"
                             style={styles.navBtnSecondary}
