@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { submitVote } from './actions'
 
@@ -10,6 +11,11 @@ export default async function CaptionsPage({ searchParams }) {
     const {
         data: { user },
     } = await supabase.auth.getUser()
+
+    if (!user) {
+        redirect('/login')
+    }
+
     const email = user?.email || 'Unknown'
 
     const { data: captions, error } = await supabase

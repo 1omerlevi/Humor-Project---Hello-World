@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import { createClient } from '@/lib/supabase/server'
 
@@ -10,6 +11,11 @@ export default async function MajorsPage({ searchParams }) {
     const {
         data: { user },
     } = await supabaseAuth.auth.getUser()
+
+    if (!user) {
+        redirect('/login')
+    }
+
     const email = user?.email || 'Unknown'
 
     const q = (searchParams?.q ?? '').toString().trim()
