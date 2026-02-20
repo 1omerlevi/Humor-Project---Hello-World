@@ -44,6 +44,9 @@ export default async function CaptionsPage({ searchParams }) {
                         <Link href="/" style={styles.navBtn}>
                             Home
                         </Link>
+                        <Link href="/upload" style={styles.navBtn}>
+                            Upload
+                        </Link>
                         <a href="/auth/logout" style={styles.navBtn}>
                             Logout
                         </a>

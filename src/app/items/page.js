@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 export const dynamic = 'force-dynamic'
 
 export default async function MajorsPage({ searchParams }) {
+    const params = await searchParams
     // ✅ Supabase Auth (gated UI)
     const supabaseAuth = await createClient()
     const {
@@ -18,7 +19,7 @@ export default async function MajorsPage({ searchParams }) {
 
     const email = user?.email || 'Unknown'
 
-    const q = (searchParams?.q ?? '').toString().trim()
+    const q = (params?.q ?? '').toString().trim()
 
     let query = supabase
         .from('university_majors')
@@ -55,6 +56,9 @@ export default async function MajorsPage({ searchParams }) {
                         </Link>
                         <Link href="/captions" style={styles.navBtnSecondary}>
                             Rate Captions
+                        </Link>
+                        <Link href="/upload" style={styles.navBtnSecondary}>
+                            Upload + Generate
                         </Link>
                         <a
                             href="/items"

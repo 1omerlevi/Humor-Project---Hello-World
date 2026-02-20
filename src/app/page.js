@@ -1,6 +1,18 @@
 import Link from 'next/link'
 
-export default function Home() {
+export default async function Home({ searchParams }) {
+    const params = await searchParams
+    const adminStatus = (params?.admin ?? '').toString()
+
+    const adminMessage =
+        adminStatus === 'forbidden'
+            ? 'Admin access denied: your profile is not marked as superadmin.'
+            : adminStatus === 'profile_missing'
+                ? 'Admin access denied: no profile row found for your auth user.'
+                : adminStatus === 'profile_query_error'
+                    ? 'Admin access denied: failed to read your profile.'
+                    : ''
+
     return (
         <main style={styles.page}>
             <div style={styles.card}>
@@ -10,6 +22,8 @@ export default function Home() {
                     Read from an existing Supabase table and render a modern UI.
                 </p>
 
+                {adminMessage ? <div style={styles.warn}>{adminMessage}</div> : null}
+
                 <div style={styles.actions}>
                     <Link href="/items" style={styles.primaryBtn}>
                         View University Majors →
@@ -17,6 +31,15 @@ export default function Home() {
                     <Link href="/captions" style={styles.secondaryBtn}>
                         Rate Captions →
                     </Link>
+                    <Link href="/upload" style={styles.secondaryBtn}>
+                        Upload + Generate Captions →
+                    </Link>
+                    <Link href="/admin" style={styles.secondaryBtn}>
+                        Admin Panel →
+                    </Link>
+                    <a href="/auth/logout" style={styles.secondaryBtn}>
+                        Logout
+                    </a>
                     <a
                         href="https://supabase.com"
                         target="_blank"
@@ -59,6 +82,13 @@ const styles = {
     },
     h1: { margin: '8px 0 0', fontSize: 34, letterSpacing: -0.6 },
     sub: { margin: '10px 0 0', opacity: 0.8, lineHeight: 1.5 },
+    warn: {
+        marginTop: 12,
+        border: '1px solid rgba(248, 113, 113, 0.45)',
+        background: 'rgba(248, 113, 113, 0.12)',
+        borderRadius: 12,
+        padding: '10px 12px',
+    },
     actions: { marginTop: 18, display: 'flex', gap: 10, flexWrap: 'wrap' },
     primaryBtn: {
         display: 'inline-flex',

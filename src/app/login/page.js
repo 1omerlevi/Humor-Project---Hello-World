@@ -21,6 +21,9 @@ export default function LoginPage() {
                     <Link href="/" style={styles.navBtnSecondary}>
                         ← Home
                     </Link>
+                    <a href="/auth/logout" style={styles.navBtnSecondary}>
+                        Logout
+                    </a>
                 </div>
 
                 <div style={styles.note}>
