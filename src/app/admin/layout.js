@@ -38,6 +38,9 @@ export default async function AdminLayout({ children }) {
                     <Link href="/admin/captions" style={styles.navBtn}>
                         Captions
                     </Link>
+                    <Link href="/admin/humor-flavors" style={styles.navBtn}>
+                        Humor Flavors
+                    </Link>
                 </nav>
             </header>
 

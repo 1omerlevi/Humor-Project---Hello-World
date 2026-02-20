@@ -46,6 +46,9 @@ export default async function AdminDashboardPage() {
                     <Link href="/admin/captions" style={styles.quickBtn}>
                         Manage Captions
                     </Link>
+                    <Link href="/admin/humor-flavors" style={styles.quickBtn}>
+                        Manage Humor Flavors
+                    </Link>
                 </div>
             </div>
 
