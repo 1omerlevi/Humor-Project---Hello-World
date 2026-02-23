@@ -32,6 +32,7 @@ function getErrorMessage(payload, fallback = 'Pipeline request failed') {
 
 export default function UploadClient({ email }) {
     const [file, setFile] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState('')
     const [progress, setProgress] = useState('')
@@ -184,7 +185,14 @@ export default function UploadClient({ email }) {
                         id="file"
                         type="file"
                         accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic"
-                        onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        onChange={(e) => {
+                            const nextFile = e.target.files?.[0] || null
+                            setFile(nextFile)
+                            setResult(null)
+                            setError('')
+                            setProgress('')
+                            setPreviewUrl(nextFile ? URL.createObjectURL(nextFile) : '')
+                        }}
                         style={styles.input}
                     />
 
@@ -192,6 +200,13 @@ export default function UploadClient({ email }) {
                         {isSubmitting ? 'Working...' : 'Upload + Generate'}
                     </button>
                 </form>
+
+                {previewUrl ? (
+                    <div style={styles.previewWrap}>
+                        <div style={styles.previewLabel}>Selected image</div>
+                        <img src={previewUrl} alt="Selected upload preview" style={styles.preview} />
+                    </div>
+                ) : null}
 
                 {progress ? <div style={styles.progress}>{progress}</div> : null}
                 {error ? <div style={styles.error}>{error}</div> : null}
@@ -201,6 +216,13 @@ export default function UploadClient({ email }) {
                         <div style={styles.resultTitle}>Pipeline result</div>
                         <div style={styles.meta}>imageId: <span style={styles.mono}>{result.imageId}</span></div>
                         <div style={styles.meta}>cdnUrl: <span style={styles.mono}>{result.cdnUrl}</span></div>
+
+                        {result.cdnUrl ? (
+                            <div style={styles.previewWrap}>
+                                <div style={styles.previewLabel}>Uploaded image (persisted)</div>
+                                <img src={result.cdnUrl} alt="Uploaded image" style={styles.preview} />
+                            </div>
+                        ) : null}
 
                         <div style={styles.resultTitle}>Generated captions</div>
                         <ul style={styles.list}>
@@ -293,6 +315,25 @@ const styles = {
         gap: 8,
     },
     resultTitle: { marginTop: 6, fontWeight: 800 },
+    previewWrap: {
+        marginTop: 10,
+        display: 'grid',
+        gap: 6,
+    },
+    previewLabel: {
+        fontSize: 12,
+        opacity: 0.82,
+        textTransform: 'uppercase',
+        letterSpacing: 0.8,
+    },
+    preview: {
+        width: '100%',
+        maxHeight: 360,
+        objectFit: 'contain',
+        borderRadius: 10,
+        border: '1px solid rgba(255,255,255,0.12)',
+        background: 'rgba(0,0,0,0.2)',
+    },
     meta: { opacity: 0.88, wordBreak: 'break-all' },
     list: { margin: 0, paddingLeft: 18, display: 'grid', gap: 8 },
     item: { lineHeight: 1.45 },

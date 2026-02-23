@@ -17,6 +17,9 @@ export default function Home() {
                     <Link href="/captions" style={styles.secondaryBtn}>
                         Rate Captions →
                     </Link>
+                    <Link href="/upload" style={styles.secondaryBtn}>
+                        Upload + Generate Captions →
+                    </Link>
                     <a
                         href="https://supabase.com"
                         target="_blank"
