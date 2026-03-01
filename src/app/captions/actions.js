@@ -16,10 +16,13 @@ export async function submitVote(formData) {
 
     const captionId = (formData.get('captionId') ?? '').toString().trim()
     const vote = Number(formData.get('vote'))
+    const idxRaw = (formData.get('idx') ?? '').toString().trim()
+    const idxNum = Number(idxRaw)
+    const idxQuery = Number.isFinite(idxNum) && idxNum >= 0 ? `&idx=${Math.floor(idxNum)}` : ''
     const nowIso = new Date().toISOString()
 
     if (!captionId || ![1, -1].includes(vote)) {
-        redirect('/captions?status=invalid')
+        redirect(`/captions?status=invalid${idxQuery}`)
     }
 
     const { error } = await supabase.from('caption_votes').upsert(
@@ -36,9 +39,9 @@ export async function submitVote(formData) {
     if (error) {
         console.error('caption_votes upsert failed:', error)
         const msg = encodeURIComponent(error.message ?? 'Unknown database error')
-        redirect(`/captions?status=error&message=${msg}`)
+        redirect(`/captions?status=error&message=${msg}${idxQuery}`)
     }
 
     revalidatePath('/captions')
-    redirect('/captions?status=success')
+    redirect(`/captions?status=success${idxQuery}`)
 }

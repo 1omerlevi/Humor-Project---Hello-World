@@ -20,12 +20,18 @@ export default async function CaptionsPage({ searchParams }) {
 
     const { data: captions, error } = await supabase
         .from('captions')
-        .select('id,content')
+        .select('id,content,image_id,image:images(url)')
         .order('id', { ascending: true })
         .limit(200)
 
     const status = (params?.status ?? '').toString()
     const errorMessage = (params?.message ?? '').toString()
+    const idxRaw = Number((params?.idx ?? '0').toString())
+    const total = captions?.length ?? 0
+    const safeIdx = total > 0 ? Math.max(0, Math.min(total - 1, Number.isFinite(idxRaw) ? Math.floor(idxRaw) : 0)) : 0
+    const caption = total > 0 ? captions[safeIdx] : null
+    const prevHref = `/captions?idx=${Math.max(0, safeIdx - 1)}`
+    const nextHref = `/captions?idx=${Math.min(total - 1, safeIdx + 1)}`
 
     return (
         <main style={styles.page}>
@@ -77,29 +83,59 @@ export default async function CaptionsPage({ searchParams }) {
                         <div style={styles.msg}>Insert rows into the `captions` table first.</div>
                     </div>
                 ) : (
-                    <div style={styles.list}>
-                        {captions.map((caption) => (
-                            <article key={caption.id} style={styles.card}>
-                                <div style={styles.captionText}>{caption.content}</div>
-                                <div style={styles.voteRow}>
-                                    <form action={submitVote}>
-                                        <input type="hidden" name="captionId" value={caption.id} />
-                                        <input type="hidden" name="vote" value="1" />
-                                        <button type="submit" style={styles.upBtn}>
-                                            👍 Upvote
-                                        </button>
-                                    </form>
-                                    <form action={submitVote}>
-                                        <input type="hidden" name="captionId" value={caption.id} />
-                                        <input type="hidden" name="vote" value="-1" />
-                                        <button type="submit" style={styles.downBtn}>
-                                            👎 Downvote
-                                        </button>
-                                    </form>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
+                    <article style={styles.card}>
+                        <div style={styles.navRow}>
+                            {safeIdx > 0 ? (
+                                <Link href={prevHref} style={styles.arrowBtn}>
+                                    ← Prev
+                                </Link>
+                            ) : (
+                                <span style={styles.arrowBtnDisabled}>← Prev</span>
+                            )}
+                            <div style={styles.counter}>
+                                {safeIdx + 1} / {total}
+                            </div>
+                            {safeIdx < total - 1 ? (
+                                <Link href={nextHref} style={styles.arrowBtn}>
+                                    Next →
+                                </Link>
+                            ) : (
+                                <span style={styles.arrowBtnDisabled}>Next →</span>
+                            )}
+                        </div>
+
+                        {caption?.image?.url ? (
+                            <div style={styles.imageWrap}>
+                                <img
+                                    src={caption.image.url}
+                                    alt="Caption context image"
+                                    style={styles.image}
+                                />
+                            </div>
+                        ) : (
+                            <div style={styles.imageMissing}>Image unavailable for this caption.</div>
+                        )}
+
+                        <div style={styles.captionText}>{caption?.content}</div>
+                        <div style={styles.voteRow}>
+                            <form action={submitVote}>
+                                <input type="hidden" name="captionId" value={caption?.id} />
+                                <input type="hidden" name="vote" value="1" />
+                                <input type="hidden" name="idx" value={safeIdx} />
+                                <button type="submit" style={styles.upBtn}>
+                                    👍 Upvote
+                                </button>
+                            </form>
+                            <form action={submitVote}>
+                                <input type="hidden" name="captionId" value={caption?.id} />
+                                <input type="hidden" name="vote" value="-1" />
+                                <input type="hidden" name="idx" value={safeIdx} />
+                                <button type="submit" style={styles.downBtn}>
+                                    👎 Downvote
+                                </button>
+                            </form>
+                        </div>
+                    </article>
                 )}
             </section>
         </main>
@@ -151,12 +187,72 @@ const styles = {
         border: '1px solid rgba(248, 113, 113, 0.45)',
         background: 'rgba(248, 113, 113, 0.12)',
     },
-    list: { display: 'grid', gap: 12 },
     card: {
         padding: 14,
         borderRadius: 16,
         border: '1px solid rgba(255,255,255,0.14)',
         background: 'rgba(255,255,255,0.05)',
+    },
+    navRow: {
+        marginBottom: 12,
+        display: 'grid',
+        gridTemplateColumns: '1fr auto 1fr',
+        alignItems: 'center',
+        gap: 8,
+    },
+    counter: {
+        fontWeight: 700,
+        letterSpacing: 0.4,
+        border: '1px solid rgba(255,255,255,0.16)',
+        background: 'rgba(255,255,255,0.06)',
+        borderRadius: 999,
+        padding: '6px 12px',
+        textAlign: 'center',
+        minWidth: 110,
+    },
+    arrowBtn: {
+        justifySelf: 'center',
+        color: '#e8eefc',
+        textDecoration: 'none',
+        border: '1px solid rgba(255,255,255,0.14)',
+        background: 'rgba(255,255,255,0.08)',
+        borderRadius: 12,
+        padding: '8px 12px',
+        fontWeight: 700,
+        minWidth: 88,
+        textAlign: 'center',
+    },
+    arrowBtnDisabled: {
+        justifySelf: 'center',
+        border: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(255,255,255,0.04)',
+        color: 'rgba(232, 238, 252, 0.5)',
+        borderRadius: 12,
+        padding: '8px 12px',
+        minWidth: 88,
+        textAlign: 'center',
+    },
+    imageWrap: {
+        marginBottom: 12,
+        borderRadius: 12,
+        overflow: 'hidden',
+        border: '1px solid rgba(255,255,255,0.14)',
+        background: 'rgba(0,0,0,0.2)',
+    },
+    image: {
+        width: '100%',
+        maxHeight: 340,
+        objectFit: 'contain',
+        display: 'block',
+        background: 'rgba(0,0,0,0.2)',
+    },
+    imageMissing: {
+        marginBottom: 10,
+        fontSize: 13,
+        opacity: 0.78,
+        padding: 8,
+        borderRadius: 10,
+        border: '1px dashed rgba(255,255,255,0.2)',
     },
     captionText: { fontSize: 17, lineHeight: 1.45 },
     msg: { marginTop: 8, opacity: 0.86 },
