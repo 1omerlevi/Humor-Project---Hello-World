@@ -4,10 +4,10 @@ export default function Home() {
     return (
         <main style={styles.page}>
             <div style={styles.card}>
-                <div style={styles.kicker}>Assignment #2</div>
-                <h1 style={styles.h1}>Next.js + Supabase</h1>
+                <div style={styles.kicker}>Humor Project</div>
+                <h1 style={styles.h1}>Create, Generate, and Rate Captions</h1>
                 <p style={styles.sub}>
-                    Read from an existing Supabase table and render a modern UI.
+                    Upload images, generate captions with the pipeline API, and vote on caption quality in one flow.
                 </p>
 
                 <div style={styles.actions}>

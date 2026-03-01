@@ -41,6 +41,7 @@ export default async function MajorsPage({ searchParams }) {
             <header style={styles.header}>
                 <div style={styles.headerInner}>
                     <div>
+                        <div style={styles.assignmentTag}>Assignment #2</div>
                         <div style={styles.kicker}>Supabase → Next.js</div>
                         <h1 style={styles.h1}>University Majors</h1>
                         <p style={styles.sub}>
@@ -191,6 +192,13 @@ const styles = {
         gap: 16,
     },
     headerRight: { display: 'flex', gap: 10 },
+    assignmentTag: {
+        fontSize: 11,
+        letterSpacing: 1.2,
+        textTransform: 'uppercase',
+        opacity: 0.72,
+        marginBottom: 4,
+    },
 
     kicker: {
         fontSize: 12,

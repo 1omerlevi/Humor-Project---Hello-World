@@ -158,7 +158,6 @@ export default function UploadClient({ email }) {
                 imageId,
                 cdnUrl,
                 captions,
-                step4Raw: step4.payload,
             })
             setProgress('Done: captions generated.')
         } catch (err) {
@@ -213,28 +212,14 @@ export default function UploadClient({ email }) {
 
                 {result ? (
                     <div style={styles.resultWrap}>
-                        <div style={styles.resultTitle}>Pipeline result</div>
-                        <div style={styles.meta}>imageId: <span style={styles.mono}>{result.imageId}</span></div>
-                        <div style={styles.meta}>cdnUrl: <span style={styles.mono}>{result.cdnUrl}</span></div>
-
-                        {result.cdnUrl ? (
-                            <div style={styles.previewWrap}>
-                                <div style={styles.previewLabel}>Uploaded image (persisted)</div>
-                                <img src={result.cdnUrl} alt="Uploaded image" style={styles.preview} />
-                            </div>
-                        ) : null}
-
                         <div style={styles.resultTitle}>Generated captions</div>
-                        <ul style={styles.list}>
+                        <div style={styles.captionsGrid}>
                             {result.captions.map((cap, idx) => (
-                                <li key={cap?.id || idx} style={styles.item}>
+                                <article key={cap?.id || idx} style={styles.captionCard}>
                                     {cap?.content || cap?.caption || cap?.text || JSON.stringify(cap)}
-                                </li>
+                                </article>
                             ))}
-                        </ul>
-
-                        <div style={styles.resultTitle}>Raw Step 4 response</div>
-                        <pre style={styles.raw}>{JSON.stringify(result.step4Raw, null, 2)}</pre>
+                        </div>
                     </div>
                 ) : null}
             </section>
@@ -334,17 +319,16 @@ const styles = {
         border: '1px solid rgba(255,255,255,0.12)',
         background: 'rgba(0,0,0,0.2)',
     },
-    meta: { opacity: 0.88, wordBreak: 'break-all' },
-    list: { margin: 0, paddingLeft: 18, display: 'grid', gap: 8 },
-    item: { lineHeight: 1.45 },
-    raw: {
-        margin: 0,
-        padding: 10,
+    captionsGrid: {
+        marginTop: 4,
+        display: 'grid',
+        gap: 10,
+    },
+    captionCard: {
+        lineHeight: 1.5,
+        padding: '10px 12px',
         borderRadius: 10,
-        background: 'rgba(0,0,0,0.25)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        overflowX: 'auto',
-        whiteSpace: 'pre-wrap',
-        wordBreak: 'break-word',
+        border: '1px solid rgba(255,255,255,0.14)',
+        background: 'rgba(0,0,0,0.2)',
     },
 }
