@@ -19,22 +19,41 @@ export async function submitVote(formData) {
     const idxRaw = (formData.get('idx') ?? '').toString().trim()
     const idxNum = Number(idxRaw)
     const idxQuery = Number.isFinite(idxNum) && idxNum >= 0 ? `&idx=${Math.floor(idxNum)}` : ''
-    const nowIso = new Date().toISOString()
 
     if (!captionId || ![1, -1].includes(vote)) {
         redirect(`/captions?status=invalid${idxQuery}`)
     }
 
-    const { error } = await supabase.from('caption_votes').upsert(
-        {
-            caption_id: captionId,
-            profile_id: user.id,
-            vote_value: vote,
-            created_datetime_utc: nowIso,
-            modified_datetime_utc: nowIso,
-        },
-        { onConflict: 'caption_id,profile_id' }
-    )
+    const { data: existingVote, error: lookupError } = await supabase
+        .from('caption_votes')
+        .select('id')
+        .eq('caption_id', captionId)
+        .eq('profile_id', user.id)
+        .maybeSingle()
+
+    if (lookupError) {
+        console.error('caption_votes lookup failed:', lookupError)
+        const msg = encodeURIComponent(lookupError.message ?? 'Unknown database error')
+        redirect(`/captions?status=error&message=${msg}${idxQuery}`)
+    }
+
+    const mutation = existingVote
+        ? supabase
+              .from('caption_votes')
+              .update({
+                  vote_value: vote,
+                  modified_by_user_id: user.id,
+              })
+              .eq('id', existingVote.id)
+        : supabase.from('caption_votes').insert({
+              caption_id: captionId,
+              profile_id: user.id,
+              vote_value: vote,
+              created_by_user_id: user.id,
+              modified_by_user_id: user.id,
+          })
+
+    const { error } = await mutation
 
     if (error) {
         console.error('caption_votes upsert failed:', error)
